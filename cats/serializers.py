@@ -24,7 +24,7 @@ class AchievementSerializer(serializers.ModelSerializer):
 
 
 class CatSerializer(serializers.ModelSerializer):
-    achievements = AchievementSerializer(many=True, required=False)
+    achievements = AchievementSerializer(read_only=True, many=True)
     color = serializers.ChoiceField(choices=CHOICES)
     age = serializers.SerializerMethodField()
     
@@ -32,6 +32,13 @@ class CatSerializer(serializers.ModelSerializer):
         model = Cat
         fields = ('id', 'name', 'color', 'birth_year', 'achievements', 'owner',
                   'age')
+        read_only_fields = ('owner',)
+    
+    def validate_birth_year(self, value):
+        year = dt.date.today().year
+        if not (year - 40 < value <= year):
+            raise serializers.ValidationError('Проверьте год рождения!')
+        return value
 
     def get_age(self, obj):
         return dt.datetime.now().year - obj.birth_year
