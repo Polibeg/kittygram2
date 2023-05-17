@@ -25,6 +25,8 @@ class AchievementSerializer(serializers.ModelSerializer):
 
 class CatSerializer(serializers.ModelSerializer):
     achievements = AchievementSerializer(read_only=True, many=True)
+    owner = serializers.PrimaryKeyRelatedField(
+        read_only=True, default=serializers.CurrentUserDefault())
     color = serializers.ChoiceField(choices=CHOICES)
     age = serializers.SerializerMethodField()
     
@@ -32,7 +34,6 @@ class CatSerializer(serializers.ModelSerializer):
         model = Cat
         fields = ('id', 'name', 'color', 'birth_year', 'achievements', 'owner',
                   'age')
-        read_only_fields = ('owner',)
 
         validators = [
             UniqueTogetherValidator(
